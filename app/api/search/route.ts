@@ -31,7 +31,15 @@ export async function GET(req: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    if (!supabaseUrl || !supabaseKey) {
+    // 環境変数がプレースホルダーまたは未設定の場合はモックデータを使用
+    const hasValidSupabase =
+      supabaseUrl &&
+      supabaseKey &&
+      supabaseUrl.includes('supabase.co') &&
+      !supabaseUrl.includes('your-project') &&
+      !supabaseKey.includes('your_anon_key')
+
+    if (!hasValidSupabase) {
       // モックデータで対応
       const mockPosts = [
         {
@@ -83,12 +91,11 @@ export async function GET(req: NextRequest) {
     // title, description, genres でフルテキスト検索
     let queryBuilder = supabase
       .from('posts')
-      .select('*, profiles!inner(username, avatar_url)', { count: 'exact' })
+      .select('*, profiles!inner(username, avatar_url)')
 
     // 実装可能な範囲での検索フィルタリング
     // Supabase のフルテキスト検索は複雑なので、クライアント側で補助する
-    const { data, error } = await queryBuilder
-      .limit(limit * 5) // 多めに取得
+    const { data, error } = await queryBuilder.limit(limit * 5) // 多めに取得
 
     if (error) {
       return NextResponse.json(
