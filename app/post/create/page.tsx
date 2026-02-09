@@ -6,6 +6,7 @@
 
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/provider'
 import { CreatePostForm } from '@/components/CreatePostForm'
@@ -23,10 +24,38 @@ export default function CreatePostPage() {
     )
   }
 
-  // 未認証の場合はログインページへ
+  // 未認証の場合はログイン促進画面
   if (!user) {
-    router.push('/auth/login')
-    return null
+    return (
+      <main className="w-full h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center gap-8 p-8">
+        <div className="text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-4">投稿するには</h1>
+          <h2 className="text-2xl font-semibold text-gray-300 mb-6">ログインが必要です</h2>
+          <p className="text-gray-400 mb-8">
+            YouTube の動画やチャンネルを TubeBoard に投稿し、新しい発見を広めましょう
+          </p>
+        </div>
+
+        <div className="flex gap-4">
+          <Link
+            href="/auth/login"
+            className="px-6 py-3 bg-primary hover:bg-red-700 text-white font-semibold rounded-lg transition"
+          >
+            ログイン
+          </Link>
+          <Link
+            href="/auth/signup"
+            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition"
+          >
+            新規登録
+          </Link>
+        </div>
+
+        <Link href="/feed" className="text-gray-400 hover:text-white mt-8 transition">
+          ← フィードに戻る
+        </Link>
+      </main>
+    )
   }
 
   return (

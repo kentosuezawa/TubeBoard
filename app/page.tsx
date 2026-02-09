@@ -35,27 +35,22 @@ export default function Home() {
       <div className="flex gap-4">
         {loading ? (
           <div className="text-gray-300">読み込み中...</div>
-        ) : user ? (
-          <Link
-            href="/feed"
-            className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-700 transition"
-          >
-            フィードを見る
-          </Link>
         ) : (
           <>
             <Link
-              href="/auth/login"
+              href="/feed"
               className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-700 transition"
             >
-              ログイン
+              フィードを見る
             </Link>
-            <Link
-              href="/auth/signup"
-              className="px-8 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
-            >
-              サインアップ
-            </Link>
+            {!user && (
+              <Link
+                href="/auth/signup"
+                className="px-8 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
+              >
+                今すぐ登録
+              </Link>
+            )}
           </>
         )}
       </div>
