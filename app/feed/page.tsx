@@ -8,6 +8,7 @@
 
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Feed } from '@/components/Feed'
 import { useAuth } from '@/lib/auth/provider'
@@ -35,8 +36,16 @@ export default function FeedPage() {
     <>
       {/* ユーザーメニューバー */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-50 backdrop-blur p-4 flex justify-between items-center">
-        <div className="text-white text-sm">
-          <span className="text-gray-300">ログイン中:</span> {user.email}
+        <div className="flex items-center gap-4">
+          <div className="text-white text-sm">
+            <span className="text-gray-300">ログイン中:</span> {user.email}
+          </div>
+          <Link
+            href="/post/create"
+            className="px-4 py-2 bg-primary hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition"
+          >
+            + 投稿する
+          </Link>
         </div>
         <button
           onClick={async () => {
