@@ -43,6 +43,12 @@ export default function Home() {
             >
               フィードを見る
             </Link>
+            <Link
+              href="/search"
+              className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition"
+            >
+              🔍 探す
+            </Link>
             {!user && (
               <Link
                 href="/auth/signup"

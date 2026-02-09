@@ -50,14 +50,23 @@ export default function FeedPage() {
             </Link>
           )}
         </div>
-        {user && !loading && (
-          <button
-            onClick={handleSignOut}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition"
+        
+        <div className="flex items-center gap-4">
+          <Link
+            href="/search"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition"
           >
-            ログアウト
-          </button>
-        )}
+            🔍 探す
+          </Link>
+          {user && !loading && (
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition"
+            >
+              ログアウト
+            </button>
+          )}
+        </div>
       </div>
 
       {/* フィード */}

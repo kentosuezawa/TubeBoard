@@ -8,7 +8,7 @@
  * - YouTubeで開くボタン
  */
 
-import React from 'react'
+import React, { useState } from 'react'
 
 export interface PostCardProps {
   kind: 'video' | 'channel'
@@ -30,7 +30,10 @@ export const PostCard: React.FC<PostCardProps> = ({
   genres,
   is_ad_active,
   username,
+  thumbnail_url,
 }) => {
+  const [iframeError, setIframeError] = useState(false)
+  
   const videoId =
     kind === 'video' ? youtube_id : representative_video_id || youtube_id
 
@@ -48,18 +51,41 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       )}
 
-      {/* 動画の埋め込み */}
-      <div className="flex-1 flex items-center justify-center mb-6 rounded-lg overflow-hidden bg-black">
-        {videoId && (
+      {/* 動画の埋め込み or サムネイル */}
+      <div className="flex-1 flex items-center justify-center mb-6 rounded-lg overflow-hidden bg-black relative">
+        {!iframeError && videoId ? (
           <iframe
             width="100%"
             height="100%"
-            src={`https://www.youtube.com/embed/${videoId}`}
+            src={`https://www.youtube.com/embed/${videoId}?modestbranding=1`}
+            title={title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+            onError={() => setIframeError(true)}
             className="w-full h-full"
           />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center relative group cursor-pointer">
+            {thumbnail_url && (
+              <img
+                src={thumbnail_url}
+                alt={title}
+                className="w-full h-full object-cover group-hover:brightness-75 transition"
+              />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 group-hover:bg-opacity-50 transition">
+              <div className="bg-red-600 text-white rounded-full p-4 group-hover:bg-red-700 transition">
+                <svg
+                  className="w-8 h-8"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                </svg>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
