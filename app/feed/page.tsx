@@ -2,17 +2,55 @@
  * app/feed/page.tsx
  * 
  * フィードページ
- * - 認証チェック（将来実装）
+ * - 認証チェック
  * - Feed コンポーネント表示
  */
 
-import React from 'react'
-import { Feed } from '@/components/Feed'
+'use client'
 
-export const metadata = {
-  title: 'フィード - TubeBoard',
-}
+import { useRouter } from 'next/navigation'
+import { Feed } from '@/components/Feed'
+import { useAuth } from '@/lib/auth/provider'
 
 export default function FeedPage() {
-  return <Feed />
+  const router = useRouter()
+  const { user, loading, signOut } = useAuth()
+
+  // ローディング中
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-lg">読み込み中...</div>
+      </div>
+    )
+  }
+
+  // 未認証の場合はログインページへ
+  if (!user) {
+    router.push('/auth/login')
+    return null
+  }
+
+  return (
+    <>
+      {/* ユーザーメニューバー */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-50 backdrop-blur p-4 flex justify-between items-center">
+        <div className="text-white text-sm">
+          <span className="text-gray-300">ログイン中:</span> {user.email}
+        </div>
+        <button
+          onClick={async () => {
+            await signOut()
+            router.push('/')
+          }}
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition"
+        >
+          ログアウト
+        </button>
+      </div>
+
+      {/* フィード */}
+      <Feed />
+    </>
+  )
 }

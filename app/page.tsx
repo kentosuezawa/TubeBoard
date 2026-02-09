@@ -1,10 +1,27 @@
 'use client'
 
 import Link from 'next/link'
+import { useAuth } from '@/lib/auth/provider'
 
 export default function Home() {
+  const { user, loading, signOut } = useAuth()
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center gap-8 p-8">
+      <div className="absolute top-4 right-4">
+        {!loading && user && (
+          <div className="flex items-center gap-4">
+            <span className="text-gray-300 text-sm">{user.email}</span>
+            <button
+              onClick={() => signOut()}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+            >
+              ログアウト
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="text-center max-w-2xl">
         <h1 className="text-5xl font-bold text-white mb-4">📺 TubeBoard</h1>
         <p className="text-xl text-gray-300 mb-8">
@@ -16,18 +33,31 @@ export default function Home() {
       </div>
 
       <div className="flex gap-4">
-        <Link
-          href="/feed"
-          className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-700 transition"
-        >
-          フィードを見る
-        </Link>
-        <Link
-          href="/auth"
-          className="px-8 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
-        >
-          ログイン
-        </Link>
+        {loading ? (
+          <div className="text-gray-300">読み込み中...</div>
+        ) : user ? (
+          <Link
+            href="/feed"
+            className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-700 transition"
+          >
+            フィードを見る
+          </Link>
+        ) : (
+          <>
+            <Link
+              href="/auth/login"
+              className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-red-700 transition"
+            >
+              ログイン
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="px-8 py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition"
+            >
+              サインアップ
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
