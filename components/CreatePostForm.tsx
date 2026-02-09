@@ -17,6 +17,7 @@ interface PostData {
   genres: string[]
   kind: 'video' | 'channel'
   youtube_id: string
+  representative_video_id?: string | null
 }
 
 const AVAILABLE_GENRES = [
@@ -40,7 +41,7 @@ export const CreatePostForm: React.FC = () => {
   const [postData, setPostData] = useState<PostData | null>(null)
 
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, session } = useAuth()
 
   // ジャンル選択トグル
   const toggleGenre = (genre: string) => {
@@ -65,22 +66,24 @@ export const CreatePostForm: React.FC = () => {
         throw new Error('最低1つ以上のジャンルを選択してください')
       }
 
-      const response = await fetch('/api/posts/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          youtube_url: url,
-          genres: selectedGenres,
-        }),
-      })
+      // メタデータを取得（認証不要）
+      const metadataResponse = await fetch(
+        `/api/posts/metadata?url=${encodeURIComponent(url)}`
+      )
 
-      if (!response.ok) {
-        const data = await response.json()
+      if (!metadataResponse.ok) {
+        const data = await metadataResponse.json()
         throw new Error(data.error || '動画情報の取得に失敗しました')
       }
 
-      const data = (await response.json()) as PostData
-      setPostData(data)
+      const metadata = await metadataResponse.json()
+      
+      // 確認画面用のデータを構築
+      const postData: PostData = {
+        ...metadata,
+        genres: selectedGenres,
+      }
+      setPostData(postData)
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Unknown error'
@@ -96,8 +99,33 @@ export const CreatePostForm: React.FC = () => {
 
     setLoading(true)
     try {
-      // TODO: 実際の投稿保存API呼び出し
-      console.log('投稿データ:', postData)
+      if (!session?.access_token) {
+        throw new Error('Authentication token not available')
+      }
+
+      // ポストを保存
+      const response = await fetch('/api/posts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          kind: postData.kind,
+          youtube_id: postData.youtube_id,
+          title: postData.title,
+          description: postData.description,
+          thumbnail_url: postData.thumbnail_url,
+          genres: postData.genres,
+          representative_video_id:
+            postData.representative_video_id || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to create post')
+      }
 
       // 投稿成功後、フィードページへ遷移
       router.push('/feed')
